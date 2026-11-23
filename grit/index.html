@@ -2,68 +2,358 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#17251f">
-<title>GRIT</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GRIT – food and calorie tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f3f5f1;--card:#fff;--ink:#18231e;--muted:#6d7a72;--green:#246b4b;--soft:#e7f1e9;--line:#e5ebe6;--orange:#e9a23b}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-header{background:#17251f;color:white;padding:25px 20px 22px;border-radius:0 0 24px 24px}
-header .eyebrow{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:#b8c9bd}
-h1{font-size:27px;margin:7px 0 4px}header p{margin:0;color:#c8d5cc;font-size:14px}
-main{max-width:620px;margin:auto;padding:16px 15px 40px}
-.card{background:var(--card);border-radius:18px;padding:17px;margin:0 0 14px;box-shadow:0 3px 14px #1a33200a}
-.row{display:flex;gap:12px}.row>*{flex:1;min-width:0}
-.label{font-size:12px;color:var(--muted);font-weight:650;text-transform:uppercase;letter-spacing:.6px}
-.big{font-size:32px;font-weight:750;margin-top:5px}.small{font-size:13px;color:var(--muted);margin-top:3px}
-.progress{height:10px;background:#edf1ed;border-radius:20px;overflow:hidden;margin:13px 0 7px}.bar{height:100%;width:0;background:var(--green);border-radius:20px;transition:width .3s}
-h2{font-size:18px;margin:0 0 14px}
-label{display:block;font-size:13px;font-weight:650;color:#536159;margin:0 0 6px}
-input,textarea{width:100%;border:1px solid #dce5dd;border-radius:11px;padding:12px;background:#fbfcfb;color:var(--ink);font:16px inherit;outline:none}
-input:focus,textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px #246b4b18}
-.field{margin-bottom:12px}button{border:0;border-radius:12px;padding:13px 16px;background:var(--green);color:white;font-size:15px;font-weight:700;width:100%;cursor:pointer}
-button.secondary{background:var(--soft);color:var(--green)}button.danger{background:#fff0ed;color:#a33b2d}
-.entry{padding:12px 0;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center}
-.entry:first-of-type{border-top:0}.entry strong{display:block}.entry small{color:var(--muted)}
-canvas{width:100%;height:170px;display:block}
-.empty{font-size:14px;color:var(--muted);padding:8px 0}
-footer{text-align:center;color:var(--muted);font-size:12px;padding:5px 10px 20px}
-.note{font-size:12px;color:var(--muted);line-height:1.5}
-@media(min-width:540px){main{padding-top:22px}.big{font-size:36px}}
+:root{--bg:#dfe1de;--ink:#161e1c;--card:#f3f4f2;--mute:#5d6663;--line:#c3c7c3;--p:#5b73ff;--c:#e9a100;--f:#e8553f}
+*{box-sizing:border-box;margin:0}
+[hidden]{display:none!important}
+body{font:500 16px/1.4 Archivo,system-ui,sans-serif;background:var(--bg);color:var(--ink);padding:16px 16px 48px}
+main{max-width:640px;margin:0 auto;display:grid;gap:14px}
+button,select,input{font:inherit;color:inherit}
+h1,h2,.big b{font-stretch:125%;font-weight:900}
+h1{font-size:2rem;letter-spacing:.02em}
+header{display:flex;justify-content:space-between;align-items:center}
+.nav{display:flex;align-items:center;gap:6px}
+.nav span{min-width:84px;text-align:center;font-weight:700}
+.nav button{width:44px;height:44px;border:2px solid var(--ink);background:none;border-radius:50%;cursor:pointer;font-size:20px}
+.hero{background:var(--ink);color:var(--card);border-radius:20px;padding:22px;display:grid;gap:14px}
+.big{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.big b{font-size:clamp(64px,19vw,104px);line-height:.9;font-variant-numeric:tabular-nums}
+.big small{opacity:.7}
+.track{position:relative;height:18px;background:#34403d;border-radius:4px;overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--card);transition:width .4s}
+.over .track i{background:var(--f)}
+.track::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 2px),var(--ink) calc(10% - 2px) 10%)}
+.goalrow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-weight:700}
+.goalrow label{display:flex;align-items:center;gap:8px;font-size:.9rem}
+.goalrow input{width:88px;min-height:40px;background:#2a3532;border:0;border-radius:8px;padding:8px;text-align:right;color:var(--card)}
+.mbar{display:flex;height:10px;border-radius:5px;overflow:hidden;background:#34403d}
+.macros{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:.85rem}
+.macros b{display:block;font-size:1.5rem;font-stretch:112%;font-weight:800}
+.macros div::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.macros .p::before{background:var(--p)}.macros .c::before{background:var(--c)}.macros .f::before{background:var(--f)}
+.card{background:var(--card);border-radius:16px;padding:18px;display:grid;gap:12px}
+h2{font-size:1.1rem;font-stretch:110%;display:flex;justify-content:space-between}
+h2 span{font-weight:600;color:var(--mute)}
+label{display:grid;gap:5px;font-weight:700;font-size:.9rem}
+input,select{background:#fff;border:2px solid var(--line);border-radius:10px;padding:11px 12px;min-height:46px;width:100%}
+:focus-visible{outline:3px solid var(--p);outline-offset:2px}
+.row{display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
+#cust{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+#cust p{grid-column:1/-1;font-size:.9rem}
+#pv{font-weight:700;min-height:1.4em}
+#add,#logmeal,#wsave{background:var(--ink);color:#fff;border:0;border-radius:12px;min-height:50px;font-weight:800;font-stretch:112%;cursor:pointer}
+.item{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.item small{display:block;color:var(--mute);font-size:.8rem}
+.item>span{font-weight:800}
+.del{width:36px;height:36px;border:0;background:none;color:var(--mute);cursor:pointer}
+.empty,.note{color:var(--mute);font-size:.9rem}
+#add{background:none;color:var(--ink);border:2px solid var(--ink)}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--line);padding:4px;border-radius:14px}
+.tabs button{border:0;background:none;min-height:42px;border-radius:10px;font-weight:800;font-stretch:112%;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--ink);color:#fff}
+.banner{background:var(--c);border-radius:14px;padding:12px 16px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.banner button,.sec{border:2px solid var(--ink);background:none;border-radius:10px;min-height:40px;padding:0 12px;font-weight:800;cursor:pointer}
+.pl{display:flex;justify-content:space-between;gap:8px;align-items:center;border-top:1px solid var(--line);padding-top:6px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;font-size:.85rem}
+.stats b{display:block;font-size:1.5rem;font-stretch:112%;font-weight:800}
+.range{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+svg{width:100%;height:auto;display:block}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.shot{background:#fff;border-radius:12px;overflow:hidden;font-size:.85rem}
+.shot img,.ph{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;background:var(--line)}
+.shot div.i{padding:8px;display:grid;gap:4px}
+@media (prefers-reduced-motion:reduce){.track i{transition:none}}
 </style>
 </head>
 <body>
-<header><div class="eyebrow">Your personal progress tracker</div><h1>GRIT</h1><p>Small consistent steps. Real long-term progress.</p></header>
 <main>
-<section class="card"><div class="row"><div><div class="label">Latest weight</div><div class="big" id="latest">— kg</div><div class="small" id="latestDate">Add your first entry</div></div><div><div class="label">Goal range</div><div class="big">70–75</div><div class="small">kg · your chosen target</div></div></div><div class="progress"><div class="bar" id="bar"></div></div><div class="small" id="progressText">Add a starting weight to see your progress.</div></section>
-<section class="card"><h2>Log today's check-in</h2><div class="field"><label for="date">Date</label><input id="date" type="date"></div><div class="row"><div class="field"><label for="weight">Weight (kg) *</label><input id="weight" type="number" min="25" max="350" step="0.1" placeholder="e.g. 110.0"></div><div class="field"><label for="waist">Waist (cm)</label><input id="waist" type="number" min="30" max="250" step="0.1" placeholder="Optional"></div></div><div class="row"><div class="field"><label for="calories">Calories (optional)</label><input id="calories" type="number" min="0" max="10000" placeholder="e.g. 2200"></div><div class="field"><label for="workout">Activity</label><select id="workout" style="width:100%;border:1px solid #dce5dd;border-radius:11px;padding:12px;background:#fbfcfb;font-size:16px"><option value="">Choose</option><option>Gym</option><option>Walk</option><option>Rest day</option><option>Sports</option><option>Other</option></select></div></div><div class="field"><label for="notes">Notes (optional)</label><textarea id="notes" rows="2" placeholder="Energy, meals, workout, how you felt..."></textarea></div><button id="save">Save check-in</button><p class="note">Tip: weigh yourself under similar conditions, ideally in the morning after using the bathroom. Daily weight can fluctuate; look at the trend, not one reading.</p></section>
-<section class="card"><h2>Food & calorie tracker</h2><div class="row"><div class="field"><label for="foodDate">Date</label><input id="foodDate" type="date"></div><div class="field"><label for="meal">Meal</label><select id="meal" style="width:100%;border:1px solid #dce5dd;border-radius:11px;padding:12px;background:#fbfcfb;font-size:16px"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option></select></div></div><div class="row"><div class="field"><label for="foodName">Food / drink</label><input id="foodName" type="text" placeholder="e.g. rice and dal"></div><div class="field"><label for="foodCalories">Calories (kcal)</label><input id="foodCalories" type="number" min="0" max="10000" placeholder="e.g. 450"></div></div><button id="addFood">Add food</button><div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px"><strong>Today's total</strong><strong class="big" style="font-size:25px;margin:0" id="dailyTotal">0 kcal</strong></div><div id="foodHistory" class="empty">No food logged for this date yet.</div><p class="note">Calories are estimates. Use food labels or a reliable nutrition source when possible; don't treat a calorie target as a reason to undereat.</p></section>
-<section class="card"><h2>Progress photos</h2><div class="field"><label for="photoDate">Photo date</label><input id="photoDate" type="date"></div><div class="field"><label for="photoFile">Choose a photo</label><input id="photoFile" type="file" accept="image/*" capture="environment"></div><div class="field"><label for="photoNote">Caption (optional)</label><input id="photoNote" type="text" placeholder="e.g. Front view · Month 1"></div><button id="savePhoto">Save progress photo</button><p class="note">Photos stay on this device in this browser. For privacy, choose photos you are comfortable storing here. Back up important photos separately.</p><div id="photoGallery" class="empty">Your progress photos will appear here.</div></section>
-<section class="card"><h2>Weight trend</h2><canvas id="chart" width="600" height="190" aria-label="Weight trend chart"></canvas><div class="small" id="chartCaption">Your chart will appear after you add entries.</div></section>
-<section class="card"><h2>Check-in history</h2><div id="history" class="empty">No entries yet. Your check-ins will appear here.</div></section>
-<section class="card"><h2>Your data</h2><p class="note">Your entries are saved in this browser on this device. They are not sent to a server. If you clear browser data or switch devices, they may be lost.</p><div class="row"><button class="secondary" id="export">Export backup</button><button class="secondary" id="importBtn">Import backup</button></div><input type="file" id="importFile" accept="application/json" hidden><div style="height:9px"></div><button class="danger" id="clear">Delete all entries</button></section>
-</main><footer>GRIT · Show up. Track progress. Keep going.</footer>
+  <header>
+    <h1>GRIT</h1>
+    <div class="nav">
+      <button id="dprev" aria-label="Previous day">‹</button>
+      <span id="dl"></span>
+      <button id="dnext" aria-label="Next day">›</button>
+    </div>
+  </header>
+
+  <nav class="tabs"><button id="tt" aria-selected="true">Food</button><button id="tp" aria-selected="false">Progress</button></nav>
+  <div class="banner" id="bn" hidden><span id="bt"></span><button id="bgo">Weigh in</button></div>
+  <div id="vt" style="display:grid;gap:14px">
+  <section class="hero" id="hero">
+    <div class="big"><b id="eaten">0</b><small>kcal eaten</small></div>
+    <div class="track"><i id="fill"></i></div>
+    <div class="goalrow">
+      <span id="left"></span>
+      <label>Daily goal <input id="goal" type="number" min="500" step="50"> kcal</label>
+    </div>
+    <div class="mbar" id="mbar"></div>
+    <div class="macros">
+      <div class="p"><b id="mp">0</b>g protein</div>
+      <div class="c"><b id="mc">0</b>g carbs</div>
+      <div class="f"><b id="mf">0</b>g fat</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Add food</h2>
+    <label>What did you eat?
+      <input id="food" list="fl" placeholder="Try egg, dal or banana" autocomplete="off">
+    </label>
+    <datalist id="fl"></datalist>
+    <div class="row">
+      <label>How much <input id="qty" type="number" min="0" step="any" value="1"></label>
+      <label>Unit <select id="unit"><option value="g">grams</option></select></label>
+    </div>
+    <div id="cust" hidden>
+      <p>Not in the list yet. Enter the values per 100 g and GRIT will remember it.</p>
+      <label>kcal <input id="kc" type="number" min="0" step="any"></label>
+      <label>Protein <input id="cp" type="number" min="0" step="any"></label>
+      <label>Carbs <input id="cc" type="number" min="0" step="any"></label>
+      <label>Fat <input id="cf" type="number" min="0" step="any"></label>
+    </div>
+    <label>Meal
+      <select id="meal"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option></select>
+    </label>
+    <div id="pv" aria-live="polite"></div>
+    <button id="add">Add to plate</button>
+  </section>
+  <section class="card" id="platec" hidden>
+    <h2>Your plate <span id="pt"></span></h2>
+    <div id="plate" style="display:grid;gap:6px"></div>
+    <button id="logmeal">Log this meal</button>
+  </section>
+
+  <section id="log" style="display:grid;gap:14px"></section>
+  </div>
+  <div id="vp" hidden style="display:grid;gap:14px">
+    <section class="card">
+      <h2>Goal weight</h2>
+      <div class="range"><label>From (kg)<input id="gmin" type="number" step="0.1"></label><label>To (kg)<input id="gmax" type="number" step="0.1"></label></div>
+    </section>
+    <section class="card">
+      <h2>Weigh in</h2>
+      <div class="row"><label>Weight (kg)<input id="wt" type="number" step="0.1" min="20"></label><label>Date<input id="wd" type="date"></label></div>
+      <label>Progress photo (optional)<input id="wp" type="file" accept="image/*"></label>
+      <div id="wm" aria-live="polite" style="font-weight:700"></div>
+      <button id="wsave">Save weigh-in</button>
+      <button class="sec" id="ics">Remind me every week (calendar)</button>
+    </section>
+    <section class="card"><h2>Progress</h2><div class="stats" id="st"></div><div id="chart"></div></section>
+    <section class="card"><h2>Photos and history</h2><div class="shots" id="shots"></div></section>
+  </div>
+  <p class="note">Your log, weights and photos are saved in this browser on this device only. Clearing browser data erases them. Food values are approximate, per 100 g.</p>
+</main>
+
 <script>
-const $=id=>document.getElementById(id),KEY='grit_entries_v1',FOOD_KEY='grit_food_v1';
-let foods=[];try{foods=JSON.parse(localStorage.getItem(FOOD_KEY)||'[]');if(!Array.isArray(foods))foods=[];}catch(e){foods=[];}
-const photoDB=new Promise((resolve,reject)=>{const req=indexedDB.open('grit_photo_db',1);req.onupgradeneeded=()=>req.result.createObjectStore('photos',{keyPath:'id'});req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});
-let entries=[];try{entries=JSON.parse(localStorage.getItem(KEY)||'[]');if(!Array.isArray(entries))entries=[];}catch(e){entries=[];}
-const today=new Date(),todayString=new Date(today.getTime()-today.getTimezoneOffset()*60000).toISOString().slice(0,10);$('date').value=todayString;$('foodDate').value=todayString;$('photoDate').value=todayString;
-function persist(){localStorage.setItem(KEY,JSON.stringify(entries));render();}
-function fmtDate(s){return new Date(s+'T12:00:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});}
-function render(){entries.sort((a,b)=>a.date.localeCompare(b.date));const latest=entries[entries.length-1];if(latest){$('latest').textContent=Number(latest.weight).toFixed(1)+' kg';$('latestDate').textContent=fmtDate(latest.date);}else{$('latest').textContent='— kg';$('latestDate').textContent='Add your first entry';}
-if(entries.length){const first=Number(entries[0].weight),last=Number(latest.weight),change=last-first,goal=72.5,pct=first>goal?Math.max(0,Math.min(100,(first-last)/(first-goal)*100)):100;$('bar').style.width=pct+'%';$('progressText').textContent=change===0?'No net change since your first entry.':(change<0?Math.abs(change).toFixed(1)+' kg down':' '+change.toFixed(1)+' kg up')+' since your first entry · '+Math.round(pct)+'% of the way from your first logged weight to 72.5 kg.';}else{$('bar').style.width='0%';$('progressText').textContent='Add a starting weight to see your progress.';}
-$('history').innerHTML='';if(!entries.length){$('history').className='empty';$('history').textContent='No entries yet. Your check-ins will appear here.';}else{$('history').className='';[...entries].reverse().forEach(e=>{const div=document.createElement('div');div.className='entry';const left=document.createElement('div'),strong=document.createElement('strong'),small=document.createElement('small');strong.textContent=Number(e.weight).toFixed(1)+' kg'+(e.waist?' · waist '+e.waist+' cm':'');small.textContent=fmtDate(e.date)+(e.activity?' · '+e.activity:'')+(e.calories?' · '+e.calories+' kcal':'')+(e.notes?' · '+e.notes:'');left.append(strong,small);const del=document.createElement('button');del.className='secondary';del.style.width='auto';del.style.padding='8px 11px';del.textContent='Delete';del.onclick=()=>{if(confirm('Delete this check-in?')){entries=entries.filter(x=>x.id!==e.id);persist();}};div.append(left,del);$('history').append(div);});}drawChart();renderFoods();renderPhotos();}
-function drawChart(){const c=$('chart'),ctx=c.getContext('2d'),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);if(!entries.length){ctx.fillStyle='#829087';ctx.font='16px sans-serif';ctx.fillText('Add weight entries to see your trend',18,90);$('chartCaption').textContent='';return;}const vals=entries.map(e=>Number(e.weight)),min=Math.min(...vals)-2,max=Math.max(...vals)+2,pad=30;ctx.strokeStyle='#e5ebe6';ctx.lineWidth=1;for(let i=0;i<4;i++){let y=pad+i*(h-2*pad)/3;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(w-pad,y);ctx.stroke();}ctx.fillStyle='#6d7a72';ctx.font='13px sans-serif';ctx.fillText(max.toFixed(1),3,pad+4);ctx.fillText(min.toFixed(1),3,h-pad);const x=i=>entries.length===1?w/2:pad+i*(w-2*pad)/(entries.length-1),y=v=>pad+(max-v)*(h-2*pad)/(max-v+v-min||1);if(entries.length>1){ctx.beginPath();entries.forEach((e,i)=>i?ctx.lineTo(x(i),y(Number(e.weight))):ctx.moveTo(x(i),y(Number(e.weight))));ctx.strokeStyle='#246b4b';ctx.lineWidth=4;ctx.lineJoin='round';ctx.stroke();}entries.forEach((e,i)=>{ctx.beginPath();ctx.arc(x(i),y(Number(e.weight)),5,0,Math.PI*2);ctx.fillStyle='#246b4b';ctx.fill();});$('chartCaption').textContent=entries.length+' check-in'+(entries.length===1?'':'s')+' · latest '+vals[vals.length-1].toFixed(1)+' kg';}
-$('save').onclick=()=>{const date=$('date').value,weight=Number($('weight').value);if(!date||!weight||weight<25||weight>350){alert('Please enter a valid date and weight.');return;}const item={id:Date.now().toString(),date,weight,waist:$('waist').value?Number($('waist').value):null,calories:$('calories').value?Number($('calories').value):null,activity:$('workout').value,notes:$('notes').value.trim()},idx=entries.findIndex(e=>e.date===date);if(idx>=0){if(!confirm('You already have an entry for this date. Replace it?'))return;entries[idx]=item;}else entries.push(item);persist();$('weight').value='';$('waist').value='';$('calories').value='';$('workout').value='';$('notes').value='';};
-$('export').onclick=()=>{const blob=new Blob([JSON.stringify({entries,foods},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='grit-backup.json';a.click();URL.revokeObjectURL(a.href);};
-$('importBtn').onclick=()=>$('importFile').click();$('importFile').onchange=async ev=>{try{const data=JSON.parse(await ev.target.files[0].text());const es=Array.isArray(data)?data:data.entries,fs=Array.isArray(data.foods)?data.foods:[];if(!Array.isArray(es)||!es.every(e=>e.date&&Number(e.weight)>0))throw Error();if(confirm('Replace your current weight and food entries with this backup?')){entries=es;foods=fs;localStorage.setItem(FOOD_KEY,JSON.stringify(foods));persist();}}catch(e){alert('That backup file does not look valid.');}ev.target.value='';};
-$('clear').onclick=()=>{if(confirm('Delete every saved weight and food check-in? This cannot be undone.')){entries=[];foods=[];localStorage.removeItem(FOOD_KEY);persist();}};
-function renderFoods(){const date=$('foodDate').value||todayString,items=foods.filter(f=>f.date===date);$('dailyTotal').textContent=items.reduce((sum,f)=>sum+Number(f.calories),0)+' kcal';const box=$('foodHistory');box.innerHTML='';if(!items.length){box.className='empty';box.textContent='No food logged for this date yet.';return;}box.className='';items.forEach(f=>{const row=document.createElement('div');row.className='entry';const info=document.createElement('div'),name=document.createElement('strong'),detail=document.createElement('small');name.textContent=f.name;detail.textContent=f.meal+' · '+f.calories+' kcal';info.append(name,detail);const del=document.createElement('button');del.className='secondary';del.style.width='auto';del.style.padding='8px 11px';del.textContent='Delete';del.onclick=()=>{foods=foods.filter(x=>x.id!==f.id);localStorage.setItem(FOOD_KEY,JSON.stringify(foods));renderFoods();};row.append(info,del);box.append(row);});}
-$('foodDate').onchange=renderFoods;$('addFood').onclick=()=>{const name=$('foodName').value.trim(),cal=Number($('foodCalories').value),date=$('foodDate').value;if(!name||!date||$('foodCalories').value===''||cal<0||cal>10000){alert('Enter a food name and a valid calorie amount.');return;}foods.push({id:Date.now().toString(),date,meal:$('meal').value,name,calories:cal});localStorage.setItem(FOOD_KEY,JSON.stringify(foods));$('foodName').value='';$('foodCalories').value='';renderFoods();};
-async function renderPhotos(){const box=$('photoGallery');box.innerHTML='';try{const db=await photoDB,tx=db.transaction('photos','readonly'),req=tx.objectStore('photos').getAll();req.onsuccess=()=>{const photos=req.result.sort((a,b)=>b.date.localeCompare(a.date));if(!photos.length){box.className='empty';box.textContent='Your progress photos will appear here.';return;}box.className='';photos.forEach(ph=>{const wrap=document.createElement('div');wrap.style.cssText='display:inline-block;vertical-align:top;width:46%;margin:2%;';const img=document.createElement('img');img.src=URL.createObjectURL(ph.blob);img.alt='Progress photo';img.style.cssText='width:100%;height:190px;object-fit:cover;border-radius:12px;background:#edf1ed';const cap=document.createElement('div');cap.style.cssText='font-size:13px;margin:6px 0;color:#536159';cap.textContent=fmtDate(ph.date)+(ph.note?' · '+ph.note:'');const del=document.createElement('button');del.className='danger';del.style.padding='8px';del.textContent='Delete photo';del.onclick=async()=>{if(confirm('Delete this photo?')){const d=await photoDB;d.transaction('photos','readwrite').objectStore('photos').delete(ph.id);renderPhotos();}};wrap.append(img,cap,del);box.append(wrap);});};}catch(e){box.className='empty';box.textContent='Photo storage is not available in this browser. Try opening GRIT in Safari.';}}
-$('savePhoto').onclick=async()=>{const file=$('photoFile').files[0],date=$('photoDate').value;if(!file||!date){alert('Choose a photo and date first.');return;}if(!file.type.startsWith('image/')){alert('Please choose an image.');return;}if(file.size>12*1024*1024){alert('Please choose a photo smaller than 12 MB.');return;}try{const db=await photoDB;db.transaction('photos','readwrite').objectStore('photos').add({id:Date.now().toString(),date,note:$('photoNote').value.trim(),blob:file});$('photoFile').value='';$('photoNote').value='';renderPhotos();}catch(e){alert('Could not save the photo. Your browser storage may be full.');}};
-render();
+// name, kcal, protein, carbs, fat (per 100 g), serving label, serving grams
+const F=[
+["Rice, cooked",130,2.7,28,.3,"bowl",180],["Roti / chapati",297,9,46,7,"roti",40],["Dal (lentils, cooked)",116,9,20,.4,"bowl",200],
+["Chickpeas, cooked",164,8.9,27,2.6,"bowl",160],["Kidney beans, cooked",127,8.7,23,.5,"bowl",170],["Tofu",76,8,1.9,4.8,"slice",85],
+["Egg, boiled",155,13,1.1,11,"egg",50],["Chicken breast, cooked",165,31,0,3.6,"breast",120],["Goat meat, cooked",143,27,0,3,"portion",100],
+["Beef, cooked",250,26,0,15,"portion",100],["Salmon, cooked",206,22,0,12,"fillet",120],["Tuna, canned in water",116,26,0,.8,"can",120],
+["Paneer",265,18,1.2,20,"portion",80],["Milk, whole",61,3.2,4.8,3.3,"cup",244],["Yogurt / curd",61,3.5,4.7,3.3,"bowl",200],
+["Greek yogurt",59,10,3.6,.4,"pot",170],["Cheese, cheddar",403,25,1.3,33,"slice",28],["Milk tea (chiya)",50,1.5,7,1.7,"cup",150],
+["Oats, dry",389,17,66,7,"serving",40],["Bread, white",265,9,49,3.2,"slice",30],["Bread, whole wheat",247,13,41,3.4,"slice",30],
+["Pasta, cooked",158,5.8,31,.9,"bowl",180],["Momo (steamed)",200,10,25,6,"piece",30],["Samosa",262,3.5,24,17,"piece",60],
+["Pizza",266,11,33,10,"slice",107],["French fries",312,3.4,41,15,"serving",117],["Potato, boiled",87,1.9,20,.1,"potato",150],
+["Sweet potato, baked",90,2,21,.2,"potato",130],["Banana",89,1.1,23,.3,"banana",118],["Apple",52,.3,14,.2,"apple",182],
+["Orange",47,.9,12,.1,"orange",130],["Mango",60,.8,15,.4,"cup",165],["Avocado",160,2,8.5,15,"half",100],
+["Broccoli, cooked",35,2.4,7.2,.4,"cup",155],["Spinach, cooked",23,3,3.8,.3,"cup",180],["Tomato",18,.9,3.9,.2,"tomato",120],
+["Cucumber",15,.7,3.6,.1,"cup",120],["Carrot",41,.9,10,.2,"carrot",60],["Onion",40,1.1,9.3,.1,"onion",110],
+["Peanut butter",588,25,20,50,"tbsp",16],["Almonds",579,21,22,50,"handful",28],["Peanuts",567,26,16,49,"handful",28],
+["Cooking oil",884,0,0,100,"tbsp",14],["Ghee",900,0,0,100,"tsp",5],["Butter",717,.9,.1,81,"tsp",5],
+["Sugar",387,0,100,0,"tsp",4],["Whey protein",400,80,8,6,"scoop",30],["Dark chocolate",546,5,61,31,"square",10],
+["Biscuit / cookie",450,6,65,18,"biscuit",12],["Cola",42,0,10.6,0,"can",330],["Orange juice",45,.7,10.4,.2,"glass",250],
+["Mixed vegetable curry",70,2,8,3.5,"bowl",150],["Cauliflower, cooked",23,1.8,4.1,.5,"cup",125],["Cabbage, cooked",23,1.3,5.5,.1,"cup",150],["Green beans, cooked",35,1.9,7.9,.3,"cup",125],["Chicken curry",150,14,4,8,"bowl",200],["Egg curry",130,8,5,9,"bowl",200],["Pickle (achar)",90,1.5,6,7,"tbsp",15]
+];
+
+const $=id=>document.getElementById(id);
+const KEY='grit:v1';
+let S={goal:2200,days:{},custom:[],weights:[],gmin:70,gmax:75};
+try{const r=JSON.parse(localStorage.getItem(KEY));if(r)S=Object.assign(S,r)}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));return true}catch(e){return false}};
+const iso=d=>d.toLocaleDateString('en-CA');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const r1=n=>Math.round(n*10)/10;
+const all=()=>F.concat(S.custom);
+const find=n=>all().find(x=>x[0].toLowerCase()===n.trim().toLowerCase());
+let day=new Date(), cur='';
+
+function fillList(){$('fl').innerHTML=all().map(x=>`<option value="${esc(x[0])}"></option>`).join('')}
+
+function calc(){
+  const f=find($('food').value);
+  let per;
+  if(f) per=f.slice(1,5);
+  else{
+    if(!$('kc').value) return null;
+    per=[$('kc'),$('cp'),$('cc'),$('cf')].map(e=>+e.value||0);
+  }
+  const q=+$('qty').value;
+  if(!(q>0)) return null;
+  const g=($('unit').value==='s'&&f)?q*f[6]:q, k=g/100;
+  return {g,per,kcal:Math.round(per[0]*k),p:r1(per[1]*k),c:r1(per[2]*k),f:r1(per[3]*k)};
+}
+
+function preview(){
+  const r=calc();
+  $('pv').textContent=r?`${r.kcal} kcal: ${r.p} g protein, ${r.c} g carbs, ${r.f} g fat`:'Pick a food and an amount to see the calories.';
+}
+
+function onFood(){
+  const v=$('food').value, f=find(v);
+  $('cust').hidden=!!f||v.trim()==='';
+  if(f&&f[0]!==cur){
+    cur=f[0];
+    $('unit').innerHTML='<option value="g">grams</option>'+(f[5]?`<option value="s">${esc(f[5])} (${f[6]} g)</option>`:'');
+    if(f[5]){$('unit').value='s';$('qty').value=1}else{$('unit').value='g';$('qty').value=100}
+  }else if(!f&&cur){
+    cur='';
+    $('unit').innerHTML='<option value="g">grams</option>';
+    $('qty').value=100;
+  }
+  preview();
+}
+
+function render(){
+  const k=iso(day), L=S.days[k]||[];
+  const T=L.reduce((a,x)=>({kcal:a.kcal+x.kcal,p:a.p+x.p,c:a.c+x.c,f:a.f+x.f}),{kcal:0,p:0,c:0,f:0});
+  $('dl').textContent=k===iso(new Date())?'Today':day.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
+  $('eaten').textContent=T.kcal.toLocaleString();
+  $('goal').value=S.goal;
+  const left=S.goal-T.kcal;
+  $('left').textContent=left>=0?`${left.toLocaleString()} kcal left`:`${(-left).toLocaleString()} kcal over`;
+  $('fill').style.width=Math.min(100,T.kcal/S.goal*100)+'%';
+  $('hero').classList.toggle('over',left<0);
+  const kc={p:T.p*4,c:T.c*4,f:T.f*9}, tot=(kc.p+kc.c+kc.f)||1;
+  $('mbar').innerHTML=['p','c','f'].map(m=>`<i style="flex:${kc[m]/tot*100};background:var(--${m})"></i>`).join('');
+  ['p','c','f'].forEach(m=>$('m'+m).textContent=Math.round(T[m]));
+  $('log').innerHTML=L.length?['Breakfast','Lunch','Dinner','Snack'].map(m=>{
+    const it=L.filter(x=>x.meal===m);
+    if(!it.length) return '';
+    return `<div class="card"><h2>${m}<span>${it.reduce((a,x)=>a+x.kcal,0)} kcal</span></h2>`+
+      it.map(x=>`<div class="item"><div><b>${esc(x.name)}</b><small>${esc(x.desc)}: ${x.p} g protein, ${x.c} g carbs, ${x.f} g fat</small></div><span>${x.kcal}</span><button class="del" data-id="${x.id}" aria-label="Remove ${esc(x.name)}">✕</button></div>`).join('')+'</div>';
+  }).join(''):'<p class="empty">Nothing logged for this day. Add your first food above.</p>';
+}
+
+$('food').oninput=onFood;
+['qty','unit','kc','cp','cc','cf'].forEach(i=>$(i).oninput=preview);
+
+let plate=[];
+$('add').onclick=()=>{
+  const r=calc(), name=$('food').value.trim();
+  if(!name||!r){$('pv').textContent='Choose a food and enter an amount first.';return}
+  const f=find(name);
+  if(!f) S.custom.push([name,...r.per]);
+  const desc=($('unit').value==='s'&&f)?`${$('qty').value} × ${f[5]}`:`${r1(r.g)} g`;
+  plate.push({name:f?f[0]:name,desc,kcal:r.kcal,p:r.p,c:r.c,f:r.f});
+  $('food').value='';['kc','cp','cc','cf'].forEach(i=>$(i).value='');
+  cur='x';onFood();fillList();save();rplate();
+  $('pv').textContent='Added to your plate. Add another food or log the meal.';
+};
+function rplate(){
+  $('platec').hidden=!plate.length;
+  $('pt').textContent=plate.reduce((a,x)=>a+x.kcal,0)+' kcal';
+  $('plate').innerHTML=plate.map((x,i)=>`<div class="pl"><span><b>${esc(x.name)}</b> ${esc(x.desc)}</span><span>${x.kcal} kcal <button class="del" data-i="${i}" aria-label="Remove ${esc(x.name)}">✕</button></span></div>`).join('');
+}
+$('plate').onclick=e=>{const b=e.target.closest('.del');if(b){plate.splice(+b.dataset.i,1);rplate()}};
+$('logmeal').onclick=()=>{
+  const key=iso(day), meal=$('meal').value, t=Date.now();
+  plate.forEach((x,i)=>(S.days[key]=S.days[key]||[]).push({...x,id:t+i,meal}));
+  plate=[];save();rplate();render();
+  $('pv').textContent=`Logged to ${meal}.`;
+};
+
+$('log').onclick=e=>{
+  const b=e.target.closest('.del');
+  if(!b) return;
+  const k=iso(day);
+  S.days[k]=(S.days[k]||[]).filter(x=>String(x.id)!==b.dataset.id);
+  save();render();
+};
+
+$('goal').onchange=()=>{const v=+$('goal').value;if(v>=500){S.goal=v;save()}render()};
+$('dprev').onclick=()=>{day.setDate(day.getDate()-1);render()};
+$('dnext').onclick=()=>{if(iso(day)>=iso(new Date()))return;day.setDate(day.getDate()+1);render()};
+
+
+function tab(t){
+  $('vt').hidden=t!=='t';$('vp').hidden=t!=='p';
+  $('tt').setAttribute('aria-selected',t==='t');$('tp').setAttribute('aria-selected',t==='p');
+  if(t==='p')rprog();
+}
+$('tt').onclick=()=>tab('t');$('tp').onclick=()=>tab('p');$('bgo').onclick=()=>tab('p');
+
+function rbanner(){
+  const W=S.weights;let m='';
+  if(!W.length) m='Log your starting weight to begin tracking.';
+  else{const n=Math.floor((new Date()-new Date(W[W.length-1].d+'T00:00'))/864e5);if(n>=7)m=`Weekly weigh-in due. Your last one was ${n} days ago.`}
+  $('bn').hidden=!m;$('bt').textContent=m;
+}
+
+function shrink(file){
+  return new Promise(res=>{
+    if(!file) return res('');
+    const im=new Image(),u=URL.createObjectURL(file);
+    im.onload=()=>{const k=Math.min(1,480/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',.7))};
+    im.onerror=()=>res('');
+    im.src=u;
+  });
+}
+
+$('wsave').onclick=async()=>{
+  const w=+$('wt').value,d=$('wd').value;
+  if(!(w>20)||!d){$('wm').textContent='Enter your weight and a date.';return}
+  const img=await shrink($('wp').files[0]);
+  S.weights=S.weights.filter(x=>x.d!==d);
+  S.weights.push({d,w,img});S.weights.sort((a,b)=>a.d<b.d?-1:1);
+  let msg='Weigh-in saved.';
+  if(!save()){S.weights.find(x=>x.d===d).img='';save();msg='Saved without the photo because browser storage is full. Delete older photos to free space.'}
+  $('wt').value='';$('wp').value='';
+  rprog();rbanner();$('wm').textContent=msg;
+};
+
+['gmin','gmax'].forEach(i=>$(i).onchange=()=>{
+  const a=+$('gmin').value,b=+$('gmax').value;
+  if(a>20&&b>=a){S.gmin=a;S.gmax=b;save()}
+  rprog();
+});
+
+$('shots').onclick=e=>{
+  const b=e.target.closest('[data-d]');
+  if(!b) return;
+  S.weights=S.weights.filter(x=>x.d!==b.dataset.d);save();rprog();rbanner();
+};
+
+function rprog(){
+  $('gmin').value=S.gmin;$('gmax').value=S.gmax;
+  if(!$('wd').value)$('wd').value=iso(new Date());
+  const W=S.weights;
+  if(!W.length){$('st').innerHTML='';$('chart').innerHTML='<p class="empty">No weigh-ins yet. Save your first one above.</p>';$('shots').innerHTML='';return}
+  const a=W[0].w,n=W[W.length-1].w;
+  $('st').innerHTML=[[r1(a),'Start (kg)'],[r1(n),'Now (kg)'],[r1(a-n),'Lost (kg)'],[n>S.gmax?r1(n-S.gmax):0,'To go (kg)']].map(x=>`<div><b>${x[0]}</b>${x[1]}</div>`).join('');
+  const P=W.map(x=>[+new Date(x.d),x.w]),t0=P[0][0],t1=P[P.length-1][0];
+  const lo=Math.min(...P.map(q=>q[1]),S.gmin)-2,hi=Math.max(...P.map(q=>q[1]),S.gmax)+2;
+  const X=t=>40+(t1>t0?(t-t0)/(t1-t0):.5)*540,Y=v=>16+(hi-v)/(hi-lo)*190;
+  $('chart').innerHTML=`<svg viewBox="0 0 600 232" role="img" aria-label="Weight over time with goal range shaded"><rect x="40" y="${Y(S.gmax)}" width="540" height="${Y(S.gmin)-Y(S.gmax)}" fill="#5b73ff" opacity=".22"/><text x="44" y="${Y(S.gmax)-5}" font-size="12" fill="#5d6663">Goal ${S.gmin} to ${S.gmax} kg</text><polyline fill="none" stroke="#161e1c" stroke-width="3" points="${P.map(q=>X(q[0])+','+Y(q[1])).join(' ')}"/>${P.map(q=>`<circle cx="${X(q[0])}" cy="${Y(q[1])}" r="4.5" fill="#161e1c"/>`).join('')}<text x="${Math.min(X(t1),560)}" y="${Y(n)-10}" font-size="13" font-weight="700" text-anchor="middle" fill="#161e1c">${n} kg</text><text x="40" y="226" font-size="12" fill="#5d6663">${W[0].d}</text><text x="580" y="226" font-size="12" text-anchor="end" fill="#5d6663">${W[W.length-1].d}</text></svg>`;
+  $('shots').innerHTML=W.slice().reverse().map((x,i,r)=>{
+    const q=r[i+1],dl=q?r1(x.w-q.w):null;
+    return `<div class="shot">${x.img?`<img src="${x.img}" alt="Progress photo from ${x.d}">`:'<div class="ph"></div>'}<div class="i"><b>${x.w} kg</b><span>${x.d}${dl!==null?` (${dl>0?'+':''}${dl})`:''}</span><button class="sec" data-d="${x.d}" aria-label="Delete weigh-in from ${x.d}">Delete</button></div></div>`;
+  }).join('');
+}
+
+$('ics').onclick=()=>{
+  const d=new Date(),z=n=>String(n).padStart(2,'0');
+  const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//GRIT//EN','BEGIN:VEVENT','UID:grit-weighin@juno-glitch','DTSTAMP:'+new Date().toISOString().replace(/[-:]|\.\d+/g,''),'DTSTART:'+d.getFullYear()+z(d.getMonth()+1)+z(d.getDate())+'T080000','RRULE:FREQ=WEEKLY','SUMMARY:GRIT weekly weigh-in','DESCRIPTION:Weigh yourself and log it in GRIT','BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:Weigh-in time','TRIGGER:PT0S','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([ics],{type:'text/calendar'}));a.download='grit-weekly-weigh-in.ics';a.click();
+};
+
+fillList();onFood();render();rplate();rbanner();
 </script>
 </body>
 </html>
