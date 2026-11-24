@@ -739,7 +739,7 @@
 <body>
 
     <!-- Background Music Element (Looks for ./song.mp3 in your GitHub repo & loops seamlessly) -->
-    <audio id="bgMusic" src="./song.mp3" loop preload="auto"></audio>
+    <audio id="bgMusic" src="../mirrors.mp3" loop preload="auto"></audio>
 
     <!-- Ambient Warm Bokeh & Floating Petals Canvas -->
     <canvas id="ambientCanvas"></canvas>
