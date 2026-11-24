@@ -73,7 +73,7 @@
             z-index: 1;
         }
 
-        /* Hide all creator UI when opened via locked #gift=... URL */
+        /* Hide all creator UI when in locked / recipient mode */
         body.recipient-mode .creator-only {
             display: none !important;
         }
@@ -543,7 +543,7 @@
         }
 
         /* ==========================================================================
-           6. CREATOR MODE BOTTOM DOCK & CUSTOMIZATION MODAL (HIDDEN FOR HER)
+           6. CREATOR MODE BOTTOM DOCK & CUSTOMIZATION MODAL (ONLY WITH ?edit)
            ========================================================================== */
         .creator-dock {
             position: fixed;
@@ -738,7 +738,7 @@
 </head>
 <body>
 
-    <!-- Background Music Element (Looks for ./song.mp3 in your GitHub repo & loops seamlessly) -->
+    <!-- Background Music Element (loops ./mirrors.mp3 from your GitHub repo) -->
     <audio id="bgMusic" src="./mirrors.mp3" loop preload="auto"></audio>
 
     <!-- Ambient Warm Bokeh & Floating Petals Canvas -->
@@ -746,12 +746,12 @@
 
     <!-- Intro Tap-to-Bloom Veil (Unlocks browser audio autoplay & blooms the bouquet) -->
     <div id="introVeil" class="intro-veil" onclick="unlockAndBloom()">
-        <div class="veil-terminal-pill">♥ python3 bouquet3d_for_you.py</div>
+        <div class="veil-terminal-pill">You don't know how much I love you ❤️</div>
         <div class="veil-heart-orb">💐</div>
         <h1 id="veilHeading" class="veil-title">I coded a bouquet for you</h1>
         <p class="veil-sub">Turn your volume up a little &amp; tap anywhere to bloom your flowers</p>
         <div class="veil-cta-btn">
-            <span>Tap to Open Your Bouquet</span>
+            <span>Open Your Bouquet </span>
             <span>✨</span>
         </div>
     </div>
@@ -823,7 +823,7 @@
         </div>
     </div>
 
-    <!-- Creator Mode Bottom Dock (Completely hidden when she opens the #gift=... link) -->
+    <!-- Creator Mode Bottom Dock (Hidden for her. Only visible when URL ends with ?edit) -->
     <div class="creator-dock creator-only">
         <button type="button" class="creator-btn-edit" onclick="openCreatorModal()">
             ✎ Customize Note &amp; Song
@@ -845,8 +845,8 @@
 
             <div class="github-tip-box">
                 <strong>🎵 How to add your exact "Mirrors" clip on GitHub:</strong><br>
-                1. Save your 20–30 second audio clip as <code>song.mp3</code> and upload it to your GitHub repo next to <code>index.html</code>.<br>
-                2. It will automatically loop in the background! (If <code>song.mp3</code> isn't uploaded yet, the built-in romantic piano ballad plays automatically.)
+                1. Save your audio clip as <code>mirrors.mp3</code> and upload it to your GitHub repo next to <code>index.html</code>.<br>
+                2. It will automatically loop in the background! (If <code>mirrors.mp3</code> isn't uploaded yet, the built-in romantic piano ballad plays automatically.)
             </div>
 
             <div class="field-row-2">
@@ -869,7 +869,7 @@
                 <div class="field-group">
                     <label for="inpMusicMode">Background Music Mode</label>
                     <select id="inpMusicMode" class="field-input">
-                        <option value="auto">🎧 GitHub song.mp3 (with Piano Fallback)</option>
+                        <option value="auto">🎧 GitHub mirrors.mp3 (with Piano Fallback)</option>
                         <option value="piano">🎹 Built-in Warm Romantic Piano</option>
                     </select>
                 </div>
@@ -929,15 +929,20 @@
 
     <script>
         /* ==========================================================================
-           1. GIFT STATE & URL HASH ENCODING (#gift=...)
+           1. GIFT STATE — EDIT HER MESSAGES DIRECTLY HERE
            ========================================================================== */
+
+        // true  = her plain link (…/bouquet/) shows her exact view, no editor.
+        // Add ?edit to the URL (…/bouquet/?edit) to open the editor.
+        const LOCKED_VIEW = true;
+
         let isRecipientMode = false;
 
         let giftState = {
             tag: 'For you ♥',
             signoff: 'Forever yours ♥',
             verse: '“It’s like you’re my mirror — my mirror staring back at me.”',
-            musicMode: 'auto', // 'auto' tries ./song.mp3 then falls back to warm synth ballad
+            musicMode: 'auto', // 'auto' tries ./mirrors.mp3 then falls back to warm synth ballad
             noteTitle: 'For My Favorite Person,',
             notes: [
                 "I coded every single petal in this 3D bouquet just to see you smile today. Even when we're not in the same room, you are always the closest person to my heart.\n\nJust like the song playing right now, looking at you feels like looking at my better half. Thank you for being my safe place, my best friend, and my favorite thought every single day.",
@@ -966,8 +971,18 @@
         }
 
         function loadGiftFromURL() {
-            const hash = window.location.hash || '';
             const params = new URLSearchParams(window.location.search);
+
+            // Locked mode: always show her exact view and ignore any #gift token
+            if (LOCKED_VIEW && !params.has('edit')) {
+                isRecipientMode = true;
+                document.body.classList.add('recipient-mode');
+                applyStateToDOM();
+                return;
+            }
+
+            // Editor mode (only reachable with ?edit in the URL)
+            const hash = window.location.hash || '';
             const token = hash.startsWith('#gift=') ? hash.slice(6).split('&')[0] : params.get('gift');
 
             if (token) {
@@ -1015,7 +1030,7 @@
         }
 
         /* ==========================================================================
-           2. CONTINUOUS LOOPING BACKGROUND MUSIC (song.mp3 + BUILT-IN PIANO FALLBACK)
+           2. CONTINUOUS LOOPING BACKGROUND MUSIC (mirrors.mp3 + BUILT-IN PIANO FALLBACK)
            ========================================================================== */
         const bgAudio = document.getElementById('bgMusic');
         let isMusicPlaying = false;
@@ -1105,7 +1120,7 @@
                 return;
             }
 
-            // Try playing ./song.mp3 (or uploaded local test MP3) on seamless loop
+            // Try playing ./mirrors.mp3 (or uploaded local test MP3) on seamless loop
             bgAudio.loop = true;
             bgAudio.volume = 0.85;
             const playPromise = bgAudio.play();
@@ -1114,7 +1129,7 @@
                 playPromise.then(() => {
                     usingSynthFallback = false;
                 }).catch(() => {
-                    // If song.mp3 is not uploaded to GitHub yet, smoothly play built-in romantic piano ballad
+                    // If mirrors.mp3 is not uploaded to GitHub yet, smoothly play built-in romantic piano ballad
                     usingSynthFallback = true;
                     triggerSynthChordBar(0);
                 });
@@ -1156,7 +1171,7 @@
             }
         }
 
-        // If ./song.mp3 fails to load at network level, fallback seamlessly to piano
+        // If ./mirrors.mp3 fails to load at network level, fallback seamlessly to piano
         bgAudio.addEventListener('error', () => {
             if (isMusicPlaying && !usingSynthFallback) {
                 usingSynthFallback = true;
@@ -1165,7 +1180,7 @@
         });
 
         /* ==========================================================================
-           3. LUSH 3D ROTATING COLORFUL ASCII BOUQUET ENGINE (HEART-STOPPING DETAIL)
+           3. LUSH 3D ROTATING COLORFUL ASCII BOUQUET ENGINE
            ========================================================================== */
         const bouquetCanvas = document.getElementById('asciiBouquetCanvas');
         const bctx = bouquetCanvas.getContext('2d');
@@ -1642,7 +1657,7 @@
         }
 
         /* ==========================================================================
-           5. CREATOR MODE CONTROLS & LINK GENERATION
+           5. CREATOR MODE CONTROLS & LINK GENERATION (ONLY WITH ?edit)
            ========================================================================== */
         function openCreatorModal() {
             document.getElementById('inpTag').value = giftState.tag;
@@ -1750,4 +1765,3 @@
     </script>
 </body>
 </html>
-
